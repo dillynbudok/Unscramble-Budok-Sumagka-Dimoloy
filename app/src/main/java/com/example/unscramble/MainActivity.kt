@@ -68,7 +68,12 @@ fun GameScreen() {
         "WATER",
         "APPLE",
         "PHONE",
-        "SCHOOL"
+        "SCHOOL",
+        "COMPUTER",
+        "ANDROID",
+        "KOTLIN",
+        "PROGRAM",
+        "KEYBOARD"
     )
 
     var currentWordIndex by remember {
@@ -85,15 +90,7 @@ fun GameScreen() {
         )
     }
 
-    var gameFinished by remember {
-        mutableStateOf(false)
-    }
-
     fun submitAnswer() {
-
-        if (gameFinished) {
-            return
-        }
 
         if (userAnswer.trim().uppercase() == words[currentWordIndex]) {
 
@@ -110,7 +107,11 @@ fun GameScreen() {
 
             } else {
 
-                gameFinished = true
+                currentWordIndex = 0
+
+                scrambledWord = scrambleWord(
+                    words[currentWordIndex]
+                )
             }
         }
     }
@@ -127,95 +128,56 @@ fun GameScreen() {
             color = Color.Black
         )
 
-        if (gameFinished) {
+        Text(
+            text = scrambledWord,
+            fontSize = 40.sp,
+            color = Color.Black
+        )
 
-            Text(
-                text = "GAME COMPLETE!",
-                fontSize = 28.sp,
-                color = Color.Black
-            )
+        Text(
+            text = "Unscramble the word!",
+            color = Color.Black
+        )
 
-            Text(
-                text = "Final Score: $score / ${words.size}",
-                fontSize = 22.sp,
-                color = Color.Black
-            )
-
-            Button(
-                onClick = {
-
-                    currentWordIndex = 0
-                    score = 0
-                    userAnswer = ""
-                    scrambledWord = scrambleWord(words[0])
-                    gameFinished = false
-
-                }
-            ) {
+        OutlinedTextField(
+            value = userAnswer,
+            onValueChange = {
+                userAnswer = it
+            },
+            label = {
                 Text(
-                    text = "PLAY AGAIN",
+                    text = "Enter your answer",
                     color = Color.Black
                 )
-            }
-
-        } else {
-
-            Text(
-                text = scrambledWord,
-                fontSize = 40.sp,
+            },
+            textStyle = LocalTextStyle.current.copy(
                 color = Color.Black
-            )
-
-            Text(
-                text = "Unscramble the word!",
-                color = Color.Black
-            )
-
-            OutlinedTextField(
-                value = userAnswer,
-                onValueChange = {
-                    userAnswer = it
-                },
-                label = {
-                    Text(
-                        text = "Enter your answer",
-                        color = Color.Black
-                    )
-                },
-                textStyle = LocalTextStyle.current.copy(
-                    color = Color.Black
-                ),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        submitAnswer()
-                    }
-                )
-            )
-
-            Button(
-                onClick = {
+            ),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
                     submitAnswer()
                 }
-            ) {
-                Text(
-                    text = "SUBMIT",
-                    color = Color.Black
-                )
-            }
-
-            Text(
-                text = "Score: $score / ${words.size}",
-                color = Color.Black
             )
+        )
 
+        Button(
+            onClick = {
+                submitAnswer()
+            }
+        ) {
             Text(
-                text = "Word ${currentWordIndex + 1} / ${words.size}",
+                text = "SUBMIT",
                 color = Color.Black
             )
         }
+
+        Text(
+            text = "Score: $score / 15",
+            color = Color.Black
+        )
     }
 }
