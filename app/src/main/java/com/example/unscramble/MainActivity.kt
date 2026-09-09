@@ -74,6 +74,7 @@ fun GameScreen() {
     var currentWordIndex by remember {
         mutableStateOf(0)
     }
+
     var score by remember {
         mutableStateOf(0)
     }
@@ -84,28 +85,32 @@ fun GameScreen() {
         )
     }
 
+    var gameFinished by remember {
+        mutableStateOf(false)
+    }
+
     fun submitAnswer() {
+
+        if (gameFinished) {
+            return
+        }
 
         if (userAnswer.trim().uppercase() == words[currentWordIndex]) {
 
             score++
+            userAnswer = ""
 
-            if (currentWordIndex == words.size - 1) {
-
-                currentWordIndex = 0
-                score = 0
-                userAnswer = ""
-                scrambledWord = scrambleWord(words[0])
-
-            } else {
+            if (currentWordIndex < words.size - 1) {
 
                 currentWordIndex++
-
-                userAnswer = ""
 
                 scrambledWord = scrambleWord(
                     words[currentWordIndex]
                 )
+
+            } else {
+
+                gameFinished = true
             }
         }
     }
@@ -122,56 +127,95 @@ fun GameScreen() {
             color = Color.Black
         )
 
-        Text(
-            text = scrambledWord,
-            fontSize = 40.sp,
-            color = Color.Black
-        )
+        if (gameFinished) {
 
-        Text(
-            text = "Unscramble the word!",
-            color = Color.Black
-        )
+            Text(
+                text = "GAME COMPLETE!",
+                fontSize = 28.sp,
+                color = Color.Black
+            )
 
-        OutlinedTextField(
-            value = userAnswer,
-            onValueChange = {
-                userAnswer = it
-            },
-            label = {
+            Text(
+                text = "Final Score: $score / ${words.size}",
+                fontSize = 22.sp,
+                color = Color.Black
+            )
+
+            Button(
+                onClick = {
+
+                    currentWordIndex = 0
+                    score = 0
+                    userAnswer = ""
+                    scrambledWord = scrambleWord(words[0])
+                    gameFinished = false
+
+                }
+            ) {
                 Text(
-                    text = "Enter your answer",
+                    text = "PLAY AGAIN",
                     color = Color.Black
                 )
-            },
-            textStyle = LocalTextStyle.current.copy(
+            }
+
+        } else {
+
+            Text(
+                text = scrambledWord,
+                fontSize = 40.sp,
                 color = Color.Black
-            ),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
+            )
+
+            Text(
+                text = "Unscramble the word!",
+                color = Color.Black
+            )
+
+            OutlinedTextField(
+                value = userAnswer,
+                onValueChange = {
+                    userAnswer = it
+                },
+                label = {
+                    Text(
+                        text = "Enter your answer",
+                        color = Color.Black
+                    )
+                },
+                textStyle = LocalTextStyle.current.copy(
+                    color = Color.Black
+                ),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        submitAnswer()
+                    }
+                )
+            )
+
+            Button(
+                onClick = {
                     submitAnswer()
                 }
-            )
-        )
-
-        Button(
-            onClick = {
-                submitAnswer()
+            ) {
+                Text(
+                    text = "SUBMIT",
+                    color = Color.Black
+                )
             }
-        ) {
+
             Text(
-                text = "SUBMIT",
+                text = "Score: $score / ${words.size}",
+                color = Color.Black
+            )
+
+            Text(
+                text = "Word ${currentWordIndex + 1} / ${words.size}",
                 color = Color.Black
             )
         }
-
-        Text(
-            text = "Score: $score / 10",
-            color = Color.Black
-        )
     }
 }
