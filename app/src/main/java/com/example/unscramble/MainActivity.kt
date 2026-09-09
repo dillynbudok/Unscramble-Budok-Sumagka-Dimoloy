@@ -74,7 +74,6 @@ fun GameScreen() {
     var currentWordIndex by remember {
         mutableStateOf(0)
     }
-
     var score by remember {
         mutableStateOf(0)
     }
