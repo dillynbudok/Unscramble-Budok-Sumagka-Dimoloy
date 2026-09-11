@@ -6,11 +6,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,9 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.unscramble.ui.theme.UnscrambleTheme
-import java.util.Collections
 
 class MainActivity : ComponentActivity() {
 
@@ -41,79 +42,15 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun scrambleWord(word: String): String {
-    val letters = word.toCharArray().toMutableList()
-
-    do {
-        Collections.shuffle(letters)
-    } while (letters.joinToString("") == word && word.length > 1)
-
-    return letters.joinToString("")
-}
-
 @Composable
 fun GameScreen() {
 
-    var userAnswer by remember {
-        mutableStateOf("")
+    val gameViewModel = remember {
+        GameViewModel()
     }
 
-    val words = listOf(
-        "CAT",
-        "DOG",
-        "BOOK",
-        "TREE",
-        "FISH",
-        "HOUSE",
-        "WATER",
-        "APPLE",
-        "PHONE",
-        "SCHOOL",
-        "COMPUTER",
-        "ANDROID",
-        "KOTLIN",
-        "PROGRAM",
-        "KEYBOARD"
-    )
-
-    var currentWordIndex by remember {
-        mutableStateOf(0)
-    }
-
-    var score by remember {
-        mutableStateOf(0)
-    }
-
-    var scrambledWord by remember {
-        mutableStateOf(
-            scrambleWord(words[0])
-        )
-    }
-
-    fun submitAnswer() {
-
-        if (userAnswer.trim().uppercase() == words[currentWordIndex]) {
-
-            score++
-            userAnswer = ""
-
-            if (currentWordIndex < words.size - 1) {
-
-                currentWordIndex++
-
-                scrambledWord = scrambleWord(
-                    words[currentWordIndex]
-                )
-
-            } else {
-
-                currentWordIndex = 0
-
-                scrambledWord = scrambleWord(
-                    words[currentWordIndex]
-                )
-            }
-        }
+    var uiState by remember {
+        mutableStateOf(gameViewModel.uiState)
     }
 
     Column(
@@ -128,21 +65,28 @@ fun GameScreen() {
             color = Color.Black
         )
 
+        Spacer(modifier = Modifier.height(20.dp))
+
         Text(
-            text = scrambledWord,
+            text = uiState.scrambledWord,
             fontSize = 40.sp,
             color = Color.Black
         )
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(
             text = "Unscramble the word!",
             color = Color.Black
         )
 
+        Spacer(modifier = Modifier.height(15.dp))
+
         OutlinedTextField(
-            value = userAnswer,
+            value = uiState.userAnswer,
             onValueChange = {
-                userAnswer = it
+                gameViewModel.updateUserAnswer(it)
+                uiState = gameViewModel.uiState
             },
             label = {
                 Text(
@@ -150,7 +94,7 @@ fun GameScreen() {
                     color = Color.Black
                 )
             },
-            textStyle = LocalTextStyle.current.copy(
+            textStyle = androidx.compose.ui.text.TextStyle(
                 color = Color.Black
             ),
             singleLine = true,
@@ -159,24 +103,30 @@ fun GameScreen() {
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    submitAnswer()
+                    gameViewModel.submitAnswer()
+                    uiState = gameViewModel.uiState
                 }
             )
         )
 
+        Spacer(modifier = Modifier.height(15.dp))
+
         Button(
             onClick = {
-                submitAnswer()
+                gameViewModel.submitAnswer()
+                uiState = gameViewModel.uiState
             }
         ) {
             Text(
                 text = "SUBMIT",
-                color = Color.Black
+                color = Color.White
             )
         }
 
+        Spacer(modifier = Modifier.height(15.dp))
+
         Text(
-            text = "Score: $score / 15",
+            text = "Score: ${uiState.score} / 10",
             color = Color.Black
         )
     }
